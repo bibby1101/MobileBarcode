@@ -48,7 +48,11 @@ internal fun updateAppWidget(
     val views = RemoteViews(context.packageName, R.layout.barcode_widget)
 
     val multiFormatWriter = MultiFormatWriter()
-    val bitMatrix = multiFormatWriter.encode("/JB8QKFQ", BarcodeFormat.CODE_39, 3000, 1000)
+
+    val bitMatrix = multiFormatWriter.encode(
+        context.getSharedPreferences("bibby", Context.MODE_PRIVATE).getString("mobilebarcode", ""),
+        BarcodeFormat.CODE_39, 900, 300)
+
     val barcodeEncoder = BarcodeEncoder()
     val bitmap = barcodeEncoder.createBitmap(bitMatrix)
     views.setImageViewBitmap(R.id.appwidget_image, bitmap)
