@@ -1,7 +1,10 @@
 package com.bibby.mobilebarcode
 
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
+import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -30,6 +33,9 @@ import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import com.bibby.mobilebarcode.ui.theme.MobileBarcodeTheme
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.MultiFormatWriter
+import com.journeyapps.barcodescanner.BarcodeEncoder
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,7 +107,24 @@ private fun InputMobileBarcode(context: Context) {
                 with (sharedPref.edit()) {
                     putString("mobilebarcode", value)
                     apply()
-                    Toast.makeText(context, "已儲存，請手動更新桌面顯示條碼的 Widget", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "已儲存，自動更新桌面顯示條碼的 Widget", Toast.LENGTH_LONG).show()
+
+                    val appWidgetManager = AppWidgetManager.getInstance(context)
+                    val id =appWidgetManager.getAppWidgetIds(ComponentName(context, BarcodeWidget::class.java))
+
+                    val views = RemoteViews(context.packageName, R.layout.barcode_widget)
+
+                    val multiFormatWriter = MultiFormatWriter()
+
+                    val bitMatrix = multiFormatWriter.encode(
+                        context.getSharedPreferences("bibby", Context.MODE_PRIVATE).getString("mobilebarcode", ""),
+                        BarcodeFormat.CODE_39, 900, 300)
+
+                    val barcodeEncoder = BarcodeEncoder()
+                    val bitmap = barcodeEncoder.createBitmap(bitMatrix)
+                    views.setImageViewBitmap(R.id.appwidget_image, bitmap)
+
+                    appWidgetManager.updateAppWidget(id, views)
                 }
             }
         ) {
@@ -109,7 +132,7 @@ private fun InputMobileBarcode(context: Context) {
         }
 
         Text(
-            text = "[注意] 儲存手機條碼後，目前請手動更新桌面顯示條碼的 Widget"
+            text = "[注意] 儲存手機條碼後，請手動新增桌面顯示條碼的 Widget"
         )
     }
 }
