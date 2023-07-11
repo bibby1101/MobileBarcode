@@ -1,8 +1,10 @@
 package com.bibby.mobilebarcode
 
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.widget.RemoteViews
 import android.widget.Toast
@@ -10,9 +12,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -26,12 +26,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
+import com.bibby.mobilebarcode.MainActivity.Companion.ONCLICKBARCODE
 import com.bibby.mobilebarcode.ui.theme.MobileBarcodeTheme
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
@@ -58,6 +58,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    companion object{
+        const val ONCLICKBARCODE = "com.bibby.mobilebarcode.ONCLICKBARCODE"
     }
 }
 
@@ -123,6 +127,17 @@ private fun InputMobileBarcode(context: Context) {
                     val barcodeEncoder = BarcodeEncoder()
                     val bitmap = barcodeEncoder.createBitmap(bitMatrix)
                     views.setImageViewBitmap(R.id.appwidget_image, bitmap)
+
+                    val intent = Intent(context, BarcodeWidget::class.java)
+                    intent.action = ONCLICKBARCODE
+                    val pending = PendingIntent.getBroadcast(
+                        context,
+                        0,
+                        intent,
+                        PendingIntent.FLAG_IMMUTABLE
+                    )
+
+                    views.setOnClickPendingIntent(R.id.appwidget_image, pending)
 
                     appWidgetManager.updateAppWidget(id, views)
                 }
