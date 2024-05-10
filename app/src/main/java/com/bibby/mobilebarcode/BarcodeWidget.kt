@@ -42,10 +42,11 @@ class BarcodeWidget : AppWidgetProvider() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         super.onReceive(context, intent)
-        if (ONCLICKBARCODE.equals(intent?.action)){
+        if (ONCLICKBARCODE == intent?.action){
             val clipboardManager = context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             // When setting the clipboard text.
-            clipboardManager.setPrimaryClip(ClipData.newPlainText   ("", context?.getSharedPreferences("bibby", Context.MODE_PRIVATE)?.getString("mobilebarcode", "")))
+            clipboardManager.setPrimaryClip(ClipData.newPlainText   ("", context.getSharedPreferences("bibby", Context.MODE_PRIVATE)
+                ?.getString("mobilebarcode", "")))
             // Only show a toast for Android 12 and lower.
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2)
                 Toast.makeText(context, "Copied", Toast.LENGTH_SHORT).show()
@@ -60,7 +61,7 @@ internal fun updateAppWidget(
 ) {
     Log.d("bibby", "updateAppWidget")
 
-    val widgetText = context.getString(R.string.appwidget_text)
+    // val widgetText = context.getString(R.string.appwidget_text)
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.barcode_widget)
 
